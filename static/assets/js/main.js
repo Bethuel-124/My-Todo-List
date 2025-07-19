@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const toggle = table.parentElement.querySelector(".toggle.ms-auto");
         
         toggle.addEventListener("click", async function () {
-            alert(" requette en cour")
+            alert(" Requette en cour! Veuillez patienter un moment!!!")
             
             const rows = table.querySelectorAll("tbody tr");
                         const tableau = [];
