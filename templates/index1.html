@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>My Todo-List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+
+    #auth-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* ombre */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+    }
+
+    body {
+      background-color: #0c1120;
+      color: white;
+    }
+    .circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #eaeaea;
+    }
+    .toggle {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background-color: #ccc;
+    }
+    table th, table td {
+      border: 1px solid #fff;
+    }
+    .footer-icon a {
+      color: white;
+      font-size: 1.2rem;
+      margin: 0 10px;
+    }
+</style>
+ 
+<script>
+  function updateClock() {
+    const now = new Date();
+    const options = {
+      timeZone: "Africa/Lagos",  // GMT+1
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    };
+
+    const heureGMT1 = now.toLocaleTimeString("fr-FR", options);
+    document.getElementById("clock").innerText = heureGMT1;
+  }
+
+  setInterval(updateClock, 1000);
+  window.onload = updateClock;
+</script>
+
+<script>
+  function updateDateTime() {
+    const now = new Date();
+    const optionsTime = {
+      timeZone: "Africa/Lagos",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    };
+
+    const optionsDate = {
+      timeZone: "Africa/Lagos",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    };
+
+    const heure = now.toLocaleTimeString("fr-FR", optionsTime);
+    const date = now.toLocaleDateString("fr-FR", optionsDate);
+
+    document.getElementById("datetime").innerText = `${date}`;
+  }
+
+  setInterval(updateDateTime, 1000);
+  window.onload = updateDateTime;
+</script>
+
+
+</head>
+<body>
+
+ <!-- <script>
+    let statut = confirm("Avez-vous deja un compte sur ce site?")
+
+    (function etat(){
+      if(statut === true){
+        document.getElementById("auth-pass02").style.display = 'none'
+      }
+      else{document.getElementById("auth-pass02").style.display = 'block'}
+    })
+  </script>-->
+
+  <!--FIRST-->
+
+  {%if first %}
+    <div id="auth-modal" class=" d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 justify-content-center align-items-center" style="z-index: 9999;">
+      <div class="bg-white p-4 rounded shadow" style="width: 400px;">
+        <h4 class="text-center text-primary">Connexion / Inscription</h4>
+        <input type="text" class="form-control my-2" placeholder="Nom" id="auth-nom">
+        <input type="text" class="form-control my-2" placeholder="Prenom" id="auth-prenom">
+        <input type="text" class="form-control my-2" placeholder="Email" id="auth-mail">
+        <input type="password" class="form-control my-2" placeholder="Mot de passe" id="auth-pass">
+        <button class="btn btn-primary w-100 my-2" onclick="connexion()">Se connecter</button>
+        <button class="btn btn-outline-secondary w-100 my-2" onclick="inscription()">S'inscrire</button>
+        <p class="text-danger text-center" id="auth-message"></p>
+      </div>
+    </div>
+  {%endif%}
+
+
+
+  <!-- Header -->
+  <header class="container py-4 px-0  "> 
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="d-flex flex-column col-5 align-items-center gap-2">
+        <div class="d-flex align-items-center justify-content-center gap-1">
+          <div class="bg-purple rounded-circle mb-1" style="width: 20px; height: 20px; background-color: purple; "></div>
+          <h4 class="text-purple">BethSAkt</h4>
+        </div>
+        <div class="d-flex flex-column" id = "dble_click">
+          <div id = "compte_photo01"><!--<img src="#" alt="photo">--> <input type="file" placeholder="Photo" class="circle bg-dark" id = "compte_photo02" ></div>
+          <div id = "compte_nom01" class="d-flex align-items-center justify-content-center"><input type="text" style="width: 125px;" placeholder=" Name" id = "compte_nom02" ><input type="button" style="width: 29px; height: 29px;" id = "pseudo" class="btn btn-secondary"></div>          
+        </div>
+
+        <h1 class="mt-2">My Todo-List</h1>
+        <a href="#contact"><button class="btn btn-pink mt-2" style="background-color: #e83e8c;" >Pour en savoir plus</button></a>
+      </div>
+      <div class="d-flex flex-column col-5 justify-content-center align-items-center ">
+        <img
+          src="{{ url_for('static', filename ='img02/cool_boy.jpg') }}"
+          alt="Photo"
+          class="rounded-circle shadow "
+          style="width: 200px; height: 200px; object-fit: cover;">
+          <div id="datetime" class="text-center my-3 fs-4 text-danger fw-bold"></div>
+          <p class="fs-3 text-warning fw-bold" id="clock"></p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Planning -->
+  <main class="container">
+    <!-- Journée type LUNDI -->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">LUNDI</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--<button class="btn btn-secondary rounded-circle">⚪</button>-->
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_lundi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_lundi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_lundi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_lundi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_lundi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_lundi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2 h-lg-100"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type MARDI-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">MARDI</h3>
+      <table class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mardi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_mardi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mardi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_mardi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mardi01"></td><td><input class="form-control" type="text" name="horaire_lundi01"></td><td><input class="form-control" type="text" name="tache_mardi01"></td><td><input class="form-control " type="text" name="statut_lundi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type MERCREDI-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">MERCREDI</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mercredi01"></td><td><input class="form-control" type="text" name="horaire_mercredi01"></td><td><input class="form-control" type="text" name="tache_mercredi01"></td><td><input class="form-control " type="text" name="statut_mercredi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mercredi01"></td><td><input class="form-control" type="text" name="horaire_mercredi01"></td><td><input class="form-control" type="text" name="tache_mercredi01"></td><td><input class="form-control " type="text" name="statut_mercredi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_mercredi01"></td><td><input class="form-control" type="text" name="horaire_mercredi01"></td><td><input class="form-control" type="text" name="tache_mercredi01"></td><td><input class="form-control " type="text" name="statut_mercredi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type JEUDI-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">JEUDI</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_jeudi01"></td><td><input class="form-control" type="text" name="horaire_jeudi01"></td><td><input class="form-control" type="text" name="tache_jeudi01"></td><td><input class="form-control " type="text" name="statut_jeudi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_jeudi01"></td><td><input class="form-control" type="text" name="horaire_jeudi01"></td><td><input class="form-control" type="text" name="tache_jeudi01"></td><td><input class="form-control " type="text" name="statut_jeudi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_jeudi01"></td><td><input class="form-control" type="text" name="horaire_jeudi01"></td><td><input class="form-control" type="text" name="tache_jeudi01"></td><td><input class="form-control " type="text" name="statut_jeudi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type VENDREDI-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">VENDREDI</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_vendredi01"></td><td><input class="form-control" type="text" name="horaire_vendredi01"></td><td><input class="form-control" type="text" name="tache_vendredi01"></td><td><input class="form-control " type="text" name="statut_vendredi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_vendredi01"></td><td><input class="form-control" type="text" name="horaire_vendredi01"></td><td><input class="form-control" type="text" name="tache_vendredi01"></td><td><input class="form-control " type="text" name="statut_vendredi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_vendredi01"></td><td><input class="form-control" type="text" name="horaire_vendredi01"></td><td><input class="form-control" type="text" name="tache_vendredi01"></td><td><input class="form-control " type="text" name="statut_vendredi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type SAMEDI-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">SAMEDI</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_samedi01"></td><td><input class="form-control" type="text" name="horaire_samedi01"></td><td><input class="form-control" type="text" name="tache_samedi01"></td><td><input class="form-control " type="text" name="statut_samedi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_samedi01"></td><td><input class="form-control" type="text" name="horaire_samedi01"></td><td><input class="form-control" type="text" name="tache_samedi01"></td><td><input class="form-control " type="text" name="statut_samedi01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_samedi01"></td><td><input class="form-control" type="text" name="horaire_samedi01"></td><td><input class="form-control" type="text" name="tache_samedi01"></td><td><input class="form-control " type="text" name="statut_samedi01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+    <!-- Journée type DIMANCHE-->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">DIMANCHE</h3>
+      <table  class="table table-danger opacity-100 text-white text-center table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10px;" >
+            <select class="vars" name="" id="" style=" background-color: #77441a; width: 20px; height: 20px;">
+                <option value=""></option>               
+                <option value="modifier">Modifier</option>
+                <option value="confirmer">Confirmer</option>
+                <option value="supprimer">Supprimer</option>
+                <option value="plus">Plus(+)</option>
+                <option value="moin">Moin(-)</option>
+            </select>
+            </th>
+
+            <th style="width: 20%;">HORAIRE</th>
+            <th >TÂCHE</th>
+            <th style="width: 10%;">STATUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_dimanche01"></td><td><input class="form-control" type="text" name="horaire_dimanche01"></td><td><input class="form-control" type="text" name="tache_dimanche01"></td><td><input class="form-control " type="text" name="statut_dimanche01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_dimanche01"></td><td><input class="form-control" type="text" name="horaire_dimanche01"></td><td><input class="form-control" type="text" name="tache_dimanche01"></td><td><input class="form-control " type="text" name="statut_dimanche01"></td></tr>
+          <tr><td height="50px"><input class="btn btn-secondary h-50 d-flex justify-content-center mt-2 rounded-circle" type="button" name="button_dimanche01"></td><td><input class="form-control" type="text" name="horaire_dimanche01"></td><td><input class="form-control" type="text" name="tache_dimanche01"></td><td><input class="form-control " type="text" name="statut_dimanche01"></td></tr>
+        </tbody>
+      </table>
+      <table class="table table-success text-white text-center table-bordered table-hover  ">
+        <thead class="border-dark border-2">
+          <tr>
+            <th style="width: 40%;">Remarques de journée</th>
+            <th style="width: 20%;">Rendement</th>
+            <th style="width: 40%;">Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="60px" class="border-dark border-2"></td><td class="border-dark border-2"></td><td class="border-dark border-2"></td></tr>
+        </tbody>
+      </table>
+      <div class="toggle ms-auto me-2"><button class="btn" ></button></div>
+    </section>
+    <div class="d-flex justify-content-center align-items-center">_______________________________________________________________ </div>
+
+    <!-- Répéter la même structure pour MARDI → DIMANCHE -->
+    <!-- Copier-coller le bloc <section> en changeant juste le nom du jour -->
+
+    <!-- Bilan -->
+    <section class="mb-5">
+      <h3 class="text-center mb-3">BILAN</h3>
+      <table class="table text-white text-center table-bordered">
+        <thead>
+          <tr>
+            <th>Indicateur de Semaine</th>
+            <th>Note</th>
+            <th>Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td height="40px"></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td></tr>
+          <tr><td colspan="3" class="fw-bold text-center">La note</td></tr>
+        </tbody>
+      </table>
+      <div class=" toggle ms-auto me-2 border-danger border-4"><p style="background-color: #e80a0a; width: 75%; height: 75%; position: relative; left: 7px; top: 3px; border-radius: 50%;"><p style="background-color: #405994; width: 45%; height:45%; position: relative; left: 14px; top: -28px; border-radius: 50%;"></p></p></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="contact" class="container text-center border-top pt-4">
+    <div class="d-flex justify-content-between flex-wrap text-white mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <div class="bg-purple rounded-circle" style="width: 20px; height: 20px; background-color: purple;"></div>
+        <span class="fw-bold text-purple">BethSAkt</span>
+      </div>
+      <div class="text-start">
+        <p class="fw-bold text-primary">Contact</p>
+        <div class="d-flex gap-2 align-items-center">
+          <p>Tel: +229</p>
+          <div>
+            <p>01 57987405 <br>01 95151064 <br>01 43354474</p> 
+          </div>
+        </div>
+        <p>Parakou, Afrique</p>
+        <p>bethuelakouta@gmail.com</p>
+         
+        
+        
+      </div>
+    </div>
+    <div class="footer-icon">
+      <a href="#"><i class="bi bi-linkedin"></i></a>
+      <a href="#"><i class="bi bi-instagram"></i></a>
+      <a href="#"><i class="bi bi-twitter"></i></a>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS + icônes -->
+   <script src="{{url_for('static', filename= 'assets/js/main.js')}}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+
+  <script>
+    async function connexion() {
+      const mail = document.getElementById("auth-mail").value;
+      const nom = document.getElementById("auth-nom").value;
+      const prenom = document.getElementById("auth-prenom").value;
+      const mot_de_passe = document.getElementById("auth-pass").value;
+
+      const res = await fetch('/se_connecter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mail: mail,nom: nom,prenom:prenom, mot_de_pass01: mot_de_passe })
+      });
+
+      const data = await res.json();
+      
+      document.getElementById("auth-message").textContent = data.message;
+
+      const token = data.token;
+
+      localStorage.setItem("auth_token", token);  // ← recommandé
+
+
+
+      if (data.message.includes("succès") || data.message.includes("succes")) {
+        document.getElementById("auth-modal").classList.add("d-none");
+      //  if(confirm("Rester connecté???")){
+        //        const element = document.getElementById("auth-modal");
+          //      const response = await fetch("/rester_connecte", {
+            //      method: "POST"
+              //  });
+                //const data = await response.json();
+                //const token = data.token;
+
+                //localStorage.setItem("auth_token", token);  // ← recommandé
+
+
+             // }
+      }
+
+      
+
+      if (data.nom || data.photo){
+              const pseudo = document.getElementById("pseudo")
+              const compte_nom01 = document.getElementById("compte_nom01")
+              const compte_nom02 = document.getElementById("compte_nom02")
+              const compte_photo01 = document.getElementById("compte_photo01")
+              const compte_photo02 = document.getElementById("compte_photo02")
+
+              const img = document.createElement("img");
+              img.style.width = "100px"
+              img.style.height = "100px"
+              img.src = data.photo
+              img.alt = "Photo"
+              
+              pseudo.classList.add("d-none")
+              compte_nom02.classList.add("d-none")
+              compte_photo02.classList.add("d-none")
+              compte_photo01.appendChild(img)
+              compte_nom01.innerHTML = data.nom
+      }
+
+
+
+      const table = data.taches
+
+      function correspondance01(i){
+        if (i === 0){k = "lundi"}
+        else if (i === 1){k = "mardi"}
+        else if (i === 2){k = "mercredi"}
+        else if (i === 3){k = "jeudi"}
+        else if (i === 4){k = "vendredi"}
+        else if (i === 5){k = "samedi"}
+        else if (i === 6){k = "dimanche"}
+
+        return k
+
+      }
+
+      function correspondance02(j){
+        if (j === 0){k = "remarque"}
+        else if (j === 1){k = "rendement"}
+        else if (j === 2){k = "suggestion"}
+
+        return k
+      }
+
+    const tables = document.querySelectorAll('table.table-danger');
+    
+    tables.forEach(function(table, i){
+      const rows = table.querySelectorAll("tbody, tr");
+      rows.forEach(function(row, j){
+        const cells =  row.querySelectorAll("td input")
+        cells.forEach(
+          cell => cell.value = table[correspondance01(i)][1][j][cellIndex]
+        )
+      })
+    })
+
+
+    const tables02 = document.querySelectorAll('table.table-success');
+    tables02.forEach(function(table02, i){
+      const row = table02.querySelectorAll("tbody, tr");
+        const cells =  row.querySelectorAll("td")
+        cells.forEach(
+          cell => cell.innerHTML = table[correspondance01(i)][0][correspondance02(cellIndex)]
+        )
+      })
+    }
+     
+
+
+    
+    
+    async function inscription() {
+      const mail = document.getElementById("auth-mail").value;
+      const nom = document.getElementById("auth-nom").value;
+      const prenom = document.getElementById("auth-prenom").value;
+      const mot_de_passe = document.getElementById("auth-pass").value;
+
+      const res = await fetch('/s_inscrire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        
+        body: JSON.stringify({ mail: mail,nom: nom,prenom:prenom, mot_de_pass01: mot_de_passe, mot_de_pass02: mot_de_passe})
+      });
+      
+      const data = await res.json();
+
+      document.getElementById("auth-message").textContent = data.message;
+
+      const token = data.token;
+
+      localStorage.setItem("auth_token", token);  // ← recommandé
+
+
+      document.getElementById("auth-message").textContent = data.message;
+
+      if (data.message.includes("succès") || data.message.includes("succes")) {
+        document.getElementById("auth-modal").classList.add("d-none");
+
+      }
+    }
+
+
+
+  </script>
+
+  {%if infos%}
+    <script>
+      //_________________AU_COMMENCEMENT____________________________
+      // noinspection JSUnresolvedVariable
+      const data = {{ infos | tojson }};
+      if (data.nom || data.photo){
+                const pseudo = document.getElementById("pseudo")
+                const compte_nom01 = document.getElementById("compte_nom01")
+                const compte_nom02 = document.getElementById("compte_nom02")
+                const compte_photo01 = document.getElementById("compte_photo01")
+                const compte_photo02 = document.getElementById("compte_photo02")
+
+                const img = document.createElement("img");
+                img.style.width = "100px"
+                img.style.height = "100px"
+                img.src = data.photo
+                img.alt = "Photo"
+                
+                pseudo.classList.add("d-none")
+                compte_nom02.classList.add("d-none")
+                compte_photo02.classList.add("d-none")
+                compte_photo01.appendChild(img)
+                compte_nom01.innerHTML = data.nom
+        }
+
+
+
+        const table = data.taches
+
+        function correspondance01(i){
+          if (i === 0){k = "lundi"}
+          else if (i === 1){k = "mardi"}
+          else if (i === 2){k = "mercredi"}
+          else if (i === 3){k = "jeudi"}
+          else if (i === 4){k = "vendredi"}
+          else if (i === 5){k = "samedi"}
+          else if (i === 6){k = "dimanche"}
+
+          return k
+
+        }
+
+        function correspondance02(j){
+          if (j === 0){k = "remarque"}
+          else if (j === 1){k = "rendement"}
+          else if (j === 2){k = "suggestion"}
+
+          return k
+        }
+
+      const tabless = document.querySelectorAll('table.table-danger');
+      
+      tabless.forEach(function(table, i){
+        const rows = table.querySelectorAll("tbody, tr");
+        rows.forEach(function(row, j){
+          const cells =  row.querySelectorAll("td input")
+          cells.forEach(
+            cell => cell.value = table[correspondance01(i)][1][j][cellIndex]
+          )
+        })
+      })
+
+
+      const tables02 = document.querySelectorAll('table.table-success');
+      tables02.forEach(function(table02, i){
+        const row = table02.querySelectorAll("tbody, tr");
+          const cells =  row.querySelectorAll("td")
+          cells.forEach(
+            cell => cell.innerHTML = table[correspondance01(i)][0][correspondance02(cellIndex)]
+          )
+        })
+      
+    </script>
+
+  {%endif%}
+
+</body>
+</html>

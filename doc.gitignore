@@ -1,0 +1,38 @@
+# Environnements virtuels
+venv/
+env/
+
+*.exe
+# Ignore secret files
+secret.env
+.env
+
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers sensibles
+*.env
+.env
+
+# Config IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Base de données locale
+instance/
+*.db
+*.sqlite3
+
+# Node modules (si tu ajoutes JS ou Tailwind via npm)
+node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
